@@ -36,7 +36,7 @@ public class JdbcWidgetStoreTests {
 	
 	@Test
 	public void given123WhenNew2Then1234() {
-		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
@@ -49,8 +49,34 @@ public class JdbcWidgetStoreTests {
 	}
 	
 	@Test
+	public void given123WhenUpdate2Then123() {
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		storage.update(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(3) ;
+	}
+	
+	@Test
+	public void given123WhenUpdate2as3Then134() {
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		storage.update(Widget.builder().id("b").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(3) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(4) ;
+	}
+	
+	@Test
 	public void given123WhenNewThen1234() {
-		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		

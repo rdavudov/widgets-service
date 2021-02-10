@@ -2,6 +2,7 @@ package com.miro.widgets.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -33,6 +34,32 @@ public class InMemoryWidgetStoreTests {
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(2) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(3) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(4) ;
+	}
+	
+	@Test
+	public void given123WhenUpdate2Then123() {
+		storage.create(Widget.builder().id("a").zindex(1).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		
+		storage.update(Widget.builder().id("b").zindex(2).build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(3) ;
+	}
+	
+	@Test
+	public void given123WhenUpdate2as3Then134() {
+		storage.create(Widget.builder().id("a").zindex(1).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		
+		storage.update(Widget.builder().id("b").zindex(3).build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(3) ;
 		assertThat(storage.findById("c").get().getZindex()).isEqualTo(4) ;
 	}

@@ -15,15 +15,17 @@ import com.miro.widgets.dto.WidgetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString
+@Setter
+@Getter
 public class Widget {
 	
 	@Id
