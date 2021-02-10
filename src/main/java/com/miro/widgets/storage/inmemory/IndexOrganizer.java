@@ -5,8 +5,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 import com.miro.widgets.entity.Widget;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@Slf4j
 public class IndexOrganizer {
 	
 	public int getMaxIndex(Map<String, Widget> widgetMap) {
@@ -39,7 +45,7 @@ public class IndexOrganizer {
 		}
 		
 		indexMap.remove(zindex) ;
-		
+		log.info("shifting {} from {} to {}", widget.getId(), widget.getZindex(), widget.getZindex() + 1);
 		Widget newWidget = Widget.buildFrom(widget) ;
 		newWidget.setZindex(zindex + 1);
 		

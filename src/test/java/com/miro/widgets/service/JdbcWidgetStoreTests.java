@@ -3,7 +3,9 @@ package com.miro.widgets.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Collectors;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.entity.Widget;
 import com.miro.widgets.repository.WidgetRepository;
 import com.miro.widgets.storage.WidgetStorage;
@@ -143,6 +146,19 @@ public class JdbcWidgetStoreTests {
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(3) ;
 		assertThat(storage.findById("c")).isEmpty() ;
+	}
+	
+	@Test
+	public void givenABCWhenFilteredThenReturnAB() {
+		storage.create(Widget.builder().id("a").x(0).y(0).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").x(0).y(50).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").x(50).y(50).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		List<Widget> filtered = storage.findAllByRegion(RegionDto.builder().x(0).y(0).height(150).width(100).build()) ;
+		
+		assertThat(filtered).hasSize(2) ;
+		Set<String> filteredSet = filtered.stream().map(w -> w.getId()).collect(Collectors.toSet()) ;
+		assertThat(filteredSet).containsExactly("a", "b") ;
 	}
 	
 	@Test

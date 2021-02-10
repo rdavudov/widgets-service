@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 
+import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.dto.WidgetDto;
 import com.miro.widgets.entity.Widget;
 
@@ -19,4 +20,6 @@ public interface WidgetService {
 	Widget update(String id, WidgetDto dto) ;
 	
 	void deleteById(String id) ;
+	
+	List<Widget> findAllByRegion(RegionDto region) ;
 }

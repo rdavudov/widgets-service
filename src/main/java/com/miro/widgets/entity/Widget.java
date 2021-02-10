@@ -26,6 +26,7 @@ import lombok.ToString;
 @Builder
 @Setter
 @Getter
+@ToString
 public class Widget {
 	
 	@Id
@@ -55,6 +56,11 @@ public class Widget {
 	@JsonIgnore
 	public boolean isZindexNotSpecified() {
 		return zindex == null ;
+	}
+	
+	@JsonIgnore
+	public int getArea() {
+		return width * height ;
 	}
 	
 	public static Widget buildFrom(WidgetDto dto) {

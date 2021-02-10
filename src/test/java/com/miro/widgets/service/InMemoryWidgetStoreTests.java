@@ -3,34 +3,41 @@ package com.miro.widgets.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 
+import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.entity.Widget;
 import com.miro.widgets.storage.WidgetStorage;
-import com.miro.widgets.storage.inmemory.InMemoryWidgetStorage;
 
+@SpringBootTest(properties = "storage=inmemory")
 public class InMemoryWidgetStoreTests {
+	
+	@Autowired
 	private WidgetStorage storage ;
 	
 	@BeforeEach
 	public void setUp() {
-		storage = new InMemoryWidgetStorage() ;
+		storage.deleteAll();
 	}
 	
 	@Test
 	public void given123WhenNew2Then1234() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.create(Widget.builder().id("x").zindex(2).build()) ;
+		storage.create(Widget.builder().id("x").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(2) ;
@@ -40,11 +47,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given123WhenUpdate2Then123() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.update(Widget.builder().id("b").zindex(2).build()) ;
+		storage.update(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
@@ -53,11 +60,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given123WhenUpdate2as3Then134() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.update(Widget.builder().id("b").zindex(3).build()) ;
+		storage.update(Widget.builder().id("b").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(3) ;
@@ -66,11 +73,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given123WhenNewThen1234() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.create(Widget.builder().id("x").build()) ;
+		storage.create(Widget.builder().id("x").x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
@@ -80,11 +87,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given156WhenNew2Then1256() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(5).build()) ;
-		storage.create(Widget.builder().id("c").zindex(6).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(5).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(6).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.create(Widget.builder().id("x").zindex(2).build()) ;
+		storage.create(Widget.builder().id("x").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(2) ;
@@ -94,11 +101,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given124WhenNew2Then1234() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(4).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(4).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.create(Widget.builder().id("x").zindex(2).build()) ;
+		storage.create(Widget.builder().id("x").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(2) ;
@@ -108,11 +115,11 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given123WhenUpdate2to3Then134() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
-		storage.create(Widget.builder().id("b").zindex(3).build()) ;
+		storage.create(Widget.builder().id("b").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(3) ;
@@ -121,18 +128,31 @@ public class InMemoryWidgetStoreTests {
 	
 	@Test
 	public void given1234WhenDelete3AndNew2Then123() {
-		storage.create(Widget.builder().id("a").zindex(1).build()) ;
-		storage.create(Widget.builder().id("b").zindex(2).build()) ;
-		storage.create(Widget.builder().id("c").zindex(3).build()) ;
-		storage.create(Widget.builder().id("d").zindex(4).build()) ;
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("d").zindex(4).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		storage.deleteById("c");
-		storage.create(Widget.builder().id("x").zindex(3).build()) ;
+		storage.create(Widget.builder().id("x").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		
 		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
 		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
 		assertThat(storage.findById("x").get().getZindex()).isEqualTo(3) ;
 		assertThat(storage.findById("c")).isEmpty() ;
+	}
+	
+	@Test
+	public void givenABCWhenFilteredThenReturnAB() {
+		storage.create(Widget.builder().id("a").x(0).y(0).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").x(0).y(50).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").x(50).y(50).height(100).width(100).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		List<Widget> filtered = storage.findAllByRegion(RegionDto.builder().x(0).y(0).height(150).width(100).build()) ;
+		
+		assertThat(filtered).hasSize(2) ;
+		Set<String> filteredSet = filtered.stream().map(w -> w.getId()).collect(Collectors.toSet()) ;
+		assertThat(filteredSet).containsExactly("a", "b") ;
 	}
 	
 	@Test
@@ -147,12 +167,12 @@ public class InMemoryWidgetStoreTests {
 					barrier.await();
 					Random random = new Random() ;
 					for (int i = 0; i < repeats; i++) {
-						Widget widget = Widget.builder().id(Thread.currentThread().getName() + "-" + i).zindex(random.nextInt(5)).build() ;
+						Widget widget = Widget.builder().id(Thread.currentThread().getName() + "-" + i).zindex(random.nextInt(5)).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build() ;
 						storage.create(widget) ;
 					}
 					
 					for (int i = 0; i < repeats; i++) {
-						Widget widget = Widget.builder().id(Thread.currentThread().getName() + "-" + i).zindex(random.nextInt(5)).build() ;
+						Widget widget = Widget.builder().id(Thread.currentThread().getName() + "-" + i).zindex(random.nextInt(5)).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build() ;
 						storage.update(widget) ;
 					}
 				} catch (InterruptedException e) {

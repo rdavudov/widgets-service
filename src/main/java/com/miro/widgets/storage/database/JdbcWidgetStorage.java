@@ -8,15 +8,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.entity.Widget;
 import com.miro.widgets.repository.WidgetRepository;
 import com.miro.widgets.storage.WidgetStorage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "storage", havingValue = "database")
+@Slf4j
 public class JdbcWidgetStorage implements WidgetStorage {
 	private final WidgetRepository widgetRepository ;
 	private final JdbcIndexOrganizer indexOrganizer ;
@@ -31,6 +34,11 @@ public class JdbcWidgetStorage implements WidgetStorage {
 	public List<Widget> findAll(Pageable pageable) {
 		return widgetRepository.findAll(pageable).toList() ;
 	}
+	
+	@Override
+	public List<Widget> findAllByRegion(RegionDto region) {
+		return widgetRepository.findAllByArea(region.getX(), region.getY(), region.getWidth(), region.getHeight());
+	}
 
 	@Override
 	public Widget create(Widget widget) {
@@ -38,7 +46,9 @@ public class JdbcWidgetStorage implements WidgetStorage {
 		try {
 			if (widget.isZindexNotSpecified()) {
 				widget.setZindex(indexOrganizer.getMaxIndex() + 1);
+				log.info("widget {} has no z index using max value {}", widget.getId(), widget.getZindex());
 			} else {
+				log.info("shifting other widgets");
 				indexOrganizer.shiftIndexes(widget);
 			}
 
@@ -54,6 +64,8 @@ public class JdbcWidgetStorage implements WidgetStorage {
 		lock.lock(); 
 		try {
 			if (zIndexHasBeenModified(widget)) {
+				log.info("widget has modified z index");
+				log.info("shifting other widgets");
 				indexOrganizer.shiftIndexes(widget);
 			}
 			
@@ -77,4 +89,5 @@ public class JdbcWidgetStorage implements WidgetStorage {
 	private boolean zIndexHasBeenModified(Widget widget) {
 		return !widgetRepository.findById(widget.getId()).get().getZindex().equals(widget.getZindex()) ;
 	}
+
 }

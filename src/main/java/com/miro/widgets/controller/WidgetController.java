@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.dto.WidgetDto;
 import com.miro.widgets.entity.Widget;
 import com.miro.widgets.service.WidgetService;
@@ -40,6 +41,11 @@ public class WidgetController {
 	@GetMapping
 	public List<Widget> getWidgets(@PageableDefault(page = 0, size = 10) Pageable pageable) {
 		return widgetService.findAll(pageable) ;
+	}
+	
+	@GetMapping("/filter")
+	public List<Widget> getWidgetByRegion(@Valid RegionDto dto) {
+		return widgetService.findAllByRegion(dto) ;
 	}
 	
 	@PostMapping
