@@ -49,6 +49,20 @@ public class JdbcWidgetStoreTests {
 	}
 	
 	@Test
+	public void given123WhenNewThen1234() {
+		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		storage.create(Widget.builder().id("x").x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(3) ;
+		assertThat(storage.findById("x").get().getZindex()).isEqualTo(4) ;
+	}
+	
+	@Test
 	public void given156WhenNew2Then1256() {
 		storage.create(Widget.builder().id("a").zindex(1).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;
 		storage.create(Widget.builder().id("b").zindex(5).x(10).y(10).height(10).width(10).lastModificationDate(LocalDateTime.now()).build()) ;

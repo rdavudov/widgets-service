@@ -9,5 +9,5 @@ import com.miro.widgets.entity.Widget;
 public interface WidgetRepository extends JpaRepository<Widget, String> {
 	Optional<Widget> findByZindex(int zIndex) ; 
 	
-	Optional<Widget> findFirstByOrderByZindex() ; 
+	Optional<Widget> findFirstByOrderByZindexDesc() ; 
 }

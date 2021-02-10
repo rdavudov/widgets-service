@@ -32,8 +32,6 @@ public class InMemoryWidgetStorage implements WidgetStorage {
 	public List<Widget> findAll(Pageable pageable) {
 		return widgetMap.values().stream()
 				.sorted(Comparator.comparingInt(Widget::getZindex))
-				.collect(Collectors.toList())
-				.stream()
 				.skip(pageable.getPageNumber() * pageable.getPageSize())
 				.limit(pageable.getPageSize())
 				.collect(Collectors.toList());

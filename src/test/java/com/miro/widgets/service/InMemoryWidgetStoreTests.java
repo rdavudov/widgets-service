@@ -38,6 +38,20 @@ public class InMemoryWidgetStoreTests {
 	}
 	
 	@Test
+	public void given123WhenNewThen1234() {
+		storage.create(Widget.builder().id("a").zindex(1).build()) ;
+		storage.create(Widget.builder().id("b").zindex(2).build()) ;
+		storage.create(Widget.builder().id("c").zindex(3).build()) ;
+		
+		storage.create(Widget.builder().id("x").build()) ;
+		
+		assertThat(storage.findById("a").get().getZindex()).isEqualTo(1) ;
+		assertThat(storage.findById("b").get().getZindex()).isEqualTo(2) ;
+		assertThat(storage.findById("c").get().getZindex()).isEqualTo(3) ;
+		assertThat(storage.findById("x").get().getZindex()).isEqualTo(4) ;
+	}
+	
+	@Test
 	public void given156WhenNew2Then1256() {
 		storage.create(Widget.builder().id("a").zindex(1).build()) ;
 		storage.create(Widget.builder().id("b").zindex(5).build()) ;

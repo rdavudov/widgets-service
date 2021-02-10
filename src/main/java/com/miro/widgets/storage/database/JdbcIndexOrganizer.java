@@ -14,7 +14,7 @@ public class JdbcIndexOrganizer {
 	private final WidgetRepository widgetRepository ;
 	
 	public int getMaxIndex() {
-		return widgetRepository.findFirstByOrderByZindex().map(w -> w.getZindex()).orElse(0) ;
+		return widgetRepository.findFirstByOrderByZindexDesc().map(w -> w.getZindex()).orElse(0) ;
 	}
 	
 	public void shiftIndexes(Widget widget) {
