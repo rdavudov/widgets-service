@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -18,6 +17,7 @@ import com.miro.widgets.dto.RegionDto;
 import com.miro.widgets.entity.Widget;
 import com.miro.widgets.storage.WidgetStorage;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,21 +25,20 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(name = "storage", havingValue = "inmemory", matchIfMissing = true)
 @Slf4j
 @RequiredArgsConstructor
-public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
+public class InMemoryWidgetStorage implements WidgetStorage {
 	
 	private final IndexOrganizer zIndexOrganizer ;
-	private Map<String, Widget> widgetMap = new HashMap<>() ;
-	private List<Widget> sortedByArea ;
+	private CombinedStorage storage = new CombinedStorage(new HashMap<>(), new ArrayList<>()) ;
 	private ReentrantLock lock = new ReentrantLock() ;
 
 	@Override
 	public Optional<Widget> findById(String id) {
-		return Optional.ofNullable(widgetMap.get(id));
+		return Optional.ofNullable(storage.getWidgetMap().get(id));
 	}
 
 	@Override
 	public List<Widget> findAll(Pageable pageable) {
-		return widgetMap.values().stream()
+		return storage.getWidgetMap().values().stream()
 				.sorted(Comparator.comparingInt(Widget::getZindex))
 				.skip(pageable.getPageNumber() * pageable.getPageSize())
 				.limit(pageable.getPageSize())
@@ -50,7 +49,7 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 	public Widget create(Widget widget) {
 		lock.lock(); 
 		try {
-			Map<String, Widget> updatedMap = new HashMap<>(widgetMap);
+			Map<String, Widget> updatedMap = new HashMap<>(storage.getWidgetMap());
 			
 			if (widget.isZindexNotSpecified()) {
 				widget.setZindex(zIndexOrganizer.getMaxIndex(updatedMap) + 1);
@@ -61,8 +60,7 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 			}
 
 			updatedMap.put(widget.getId(), widget) ;
-			widgetMap = updatedMap ;
-			sortedByArea = sortByArea(widgetMap) ;
+			storage = new CombinedStorage(updatedMap, sortByArea(updatedMap)) ;
 		} finally {
 			lock.unlock(); 
 		}
@@ -73,7 +71,7 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 	public Widget update(Widget widget) {
 		lock.lock(); 
 		try {
-			Map<String, Widget> updatedMap = new HashMap<>(widgetMap);
+			Map<String, Widget> updatedMap = new HashMap<>(storage.getWidgetMap());
 			
 			if (zIndexHasBeenModified(widget, updatedMap)) {
 				log.info("widget has modified z index");
@@ -83,8 +81,7 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 			}
 
 			updatedMap.put(widget.getId(), widget) ;
-			widgetMap = updatedMap ;
-			sortedByArea = sortByArea(widgetMap) ;
+			storage = new CombinedStorage(updatedMap, sortByArea(updatedMap)) ;
 		} finally {
 			lock.unlock(); 
 		}
@@ -95,10 +92,9 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 	public void deleteById(String id) {
 		lock.lock(); 
 		try {
-			Map<String, Widget> updatedMap = new HashMap<>(widgetMap);
+			Map<String, Widget> updatedMap = new HashMap<>(storage.getWidgetMap());
 			updatedMap.remove(id) ;
-			widgetMap = updatedMap ;
-			sortedByArea = sortByArea(widgetMap) ;
+			storage = new CombinedStorage(updatedMap, sortByArea(updatedMap)) ;
 		} finally {
 			lock.unlock(); 
 		}
@@ -108,24 +104,16 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 	public void deleteAll() {
 		lock.lock(); 
 		try {
-			widgetMap = new HashMap<>() ;
-			sortedByArea = sortByArea(widgetMap) ;
+			storage = new CombinedStorage(new HashMap<>(), new ArrayList<>()) ;
 		} finally {
 			lock.unlock(); 
 		}
 	}
 	
 	@Override
-	public void run(String... args) throws Exception {
-		create(Widget.builder().id("a").x(0).y(0).width(100).height(100).build()) ;
-		create(Widget.builder().id("b").x(0).y(50).width(100).height(100).build()) ;
-		create(Widget.builder().id("c").x(50).y(50).width(100).height(100).build()) ;
-	}
-
-	@Override
 	public List<Widget> findAllByRegion(RegionDto region) {
 		List<Widget> withInRegion = new ArrayList<>() ;
-		for (Widget widget : sortedByArea) {
+		for (Widget widget : storage.getWidgetsSortedByArea()) {
 			if (widget.getArea() <= region.getArea()) {
 				withInRegion.add(widget) ;
 			} else {
@@ -150,5 +138,14 @@ public class InMemoryWidgetStorage implements WidgetStorage, CommandLineRunner {
 		return widgetMap.values().stream().sorted(Comparator.comparingInt(Widget::getArea)).collect(Collectors.toList()) ;
 	}
 	
-	
+	@Getter
+	private class CombinedStorage {
+		private Map<String, Widget> widgetMap = new HashMap<>() ;
+		private List<Widget> widgetsSortedByArea ;
+		
+		public CombinedStorage(Map<String, Widget> widgetMap, List<Widget> widgetsSortedByArea) {
+			this.widgetMap = widgetMap ;
+			this.widgetsSortedByArea = widgetsSortedByArea ;
+		}
+	}
 }

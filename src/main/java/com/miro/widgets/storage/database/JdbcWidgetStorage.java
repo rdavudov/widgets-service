@@ -32,7 +32,7 @@ public class JdbcWidgetStorage implements WidgetStorage {
 
 	@Override
 	public List<Widget> findAll(Pageable pageable) {
-		return widgetRepository.findAll(pageable).toList() ;
+		return widgetRepository.findAllByOrderByZindex(pageable).toList() ;
 	}
 	
 	@Override
